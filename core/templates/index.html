@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Commerce en Ligne - Burundi</title>
+    <!-- Tailwind CSS en mode développement via le CDN officiel -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="flex min-h-screen flex-col bg-gradient-to-br from-emerald-100 via-emerald-50 to-cyan-100 font-sans text-slate-800">
+
+    {% include 'partials/navigation.html' %}
+
+    <!-- Zone principale : Le choix binaire -->
+    <main class="mx-auto flex w-full max-w-7xl flex-grow flex-col justify-center px-5 py-12 lg:px-8">
+        <section class="mx-auto mb-10 max-w-3xl text-center">
+            <p class="mb-3 text-sm font-bold uppercase tracking-[0.2em] text-emerald-700">Acheter local, vendre avec confiance</p>
+            <h1 class="text-4xl font-black leading-tight text-slate-900 md:text-6xl">Bienvenue sur <span class="text-emerald-700">Isoko Yanje</span></h1>
+            <p class="mx-auto mt-5 max-w-2xl text-base leading-7 text-slate-600 md:text-lg">La plateforme qui rapproche les clients des commerçants et des produits du Burundi.</p>
+        </section>
+
+        <!-- Grille adaptative pour téléphones et ordinateurs -->
+        <div class="mx-auto grid w-full max-w-4xl grid-cols-1 gap-6 md:grid-cols-2">
+            
+            <!-- Choix 1 : Espace Client (Accès direct sans compte) -->
+            <button onclick="choisirEspace('client')" class="group flex h-64 flex-col justify-between rounded-2xl border-2 border-emerald-300 bg-white/85 p-8 text-left shadow-md backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-emerald-600 hover:bg-emerald-600 hover:shadow-xl">
+                <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100 p-4 text-2xl transition-colors group-hover:bg-white/20">
+                    🛒
+                </div>
+                <div>
+                    <h2 class="mb-2 text-xl font-bold text-slate-900 group-hover:text-white">Je suis client</h2>
+                    <p class="text-sm text-slate-500 transition-colors group-hover:text-emerald-50">Découvrez des produits locaux, consultez les prix et contactez directement les vendeurs.</p>
+                </div>
+            </button>
+
+            <!-- Choix 2 : Espace Commerçant (Compte obligatoire) -->
+            <button onclick="choisirEspace('commercant')" class="group flex h-64 flex-col justify-between rounded-2xl border-2 border-sky-300 bg-white/85 p-8 text-left shadow-md backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-sky-600 hover:bg-sky-600 hover:shadow-xl">
+                <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-sky-100 p-4 text-2xl transition-colors group-hover:bg-white/20">
+                    💼
+                </div>
+                <div>
+                    <h2 class="mb-2 text-xl font-bold text-slate-900 group-hover:text-white">Je suis commerçant</h2>
+                    <p class="text-sm text-slate-500 transition-colors group-hover:text-sky-50">Créez votre compte avec votre NIF, publiez vos produits et développez votre activité.</p>
+                </div>
+            </button>
+
+        </div>
+    </main>
+
+    {% include 'partials/footer.html' %}
+
+    <!-- Logique de redirection -->
+    <script>
+        function choisirEspace(role) {
+            if (role === 'client') {
+                window.location.href = "{% url 'site_produits' %}";
+            } else if (role === 'commercant') {
+                window.location.href = "{% url 'connexion_commercant' %}";
+            }
+        }
+    </script>
+
+</body>
+</html>

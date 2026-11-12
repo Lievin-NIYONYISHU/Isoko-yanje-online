@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boutique en ligne - Burundi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-emerald-50 text-slate-800">
+    {% include 'partials/navigation.html' %}
+
+    <main class="mx-auto max-w-7xl px-5 py-10">
+        <section class="mb-10 rounded-3xl bg-gradient-to-r from-emerald-700 to-teal-600 px-6 py-10 text-white shadow-xl md:px-10">
+            <p class="mb-2 text-sm font-semibold uppercase tracking-widest text-emerald-100">Le marché local, près de vous</p>
+            <h1 class="max-w-2xl text-3xl font-black md:text-5xl">Trouvez ce qu’il vous faut au Burundi.</h1>
+            <p class="mt-4 max-w-xl text-emerald-50">Découvrez les produits proposés par les commerçants locaux et contactez directement les boutiques.</p>
+            <form method="get" class="mt-6 flex max-w-2xl flex-col gap-2 rounded-2xl bg-white/15 p-2 backdrop-blur-md ring-1 ring-white/25 sm:flex-row">
+                <input name="q" value="{{ recherche }}" type="search" placeholder="Rechercher un produit, une boutique..." class="min-w-0 flex-1 rounded-xl border-0 bg-white/90 px-4 py-3 text-slate-800 outline-none placeholder:text-slate-500">
+                <select name="categorie" class="rounded-xl border-0 bg-white/90 px-4 py-3 text-slate-700 outline-none">
+                    <option value="">Tous les produits</option>
+                    <option value="Mode" {% if categorie == 'Mode' %}selected{% endif %}>Mode</option>
+                    <option value="Artisanat" {% if categorie == 'Artisanat' %}selected{% endif %}>Artisanat</option>
+                    <option value="Électronique" {% if categorie == 'Électronique' %}selected{% endif %}>Électronique</option>
+                </select>
+                <button class="rounded-xl bg-slate-900 px-5 py-3 font-bold text-white transition hover:bg-emerald-600">Rechercher</button>
+            </form>
+        </section>
+
+        {% if request.GET.message == 'envoye' %}
+            <div class="mb-5 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 font-semibold text-emerald-800">Votre message a été envoyé au commerçant.</div>
+        {% endif %}
+        <div class="mb-5 flex items-end justify-between gap-4">
+            <div>
+                <p class="text-sm font-semibold uppercase tracking-widest text-emerald-700">Catalogue</p>
+                <h2 class="text-2xl font-black text-slate-900">Produits disponibles</h2>
+            </div>
+            <span class="rounded-full bg-white px-3 py-1 text-sm font-semibold text-slate-600 shadow-sm">Livraison locale</span>
+        </div>
+
+        <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {% for produit in produits %}
+                <article role="button" tabindex="0" data-product-id="{{ produit.id }}" data-product-name="{{ produit.nom }}" data-product-price="{{ produit.prix }}" data-product-description="{{ produit.description|default:'Aucune description' }}" data-product-shop="{{ produit.commercant.nom_boutique }}" data-product-location="{{ produit.commercant.ville_ou_province }}, {{ produit.commercant.quartier }}" data-product-phone="{{ produit.commercant.telephone }}" data-phone-visible="{{ produit.commercant.telephone_visible|yesno:'true,false' }}" onclick="ouvrirDetailsDepuisCarte(this)" onkeydown="if (event.key === 'Enter' || event.key === ' ') ouvrirDetailsDepuisCarte(this)" class="cursor-pointer overflow-hidden rounded-2xl border border-emerald-200 bg-white shadow-sm transition hover:-translate-y-1 hover:border-emerald-400 hover:shadow-xl">
+                    {% if produit.photo %}
+                        <img src="{{ produit.photo.url }}" alt="{{ produit.nom }}" class="h-48 w-full object-cover">
+                    {% else %}
+                        <div class="flex h-48 items-center justify-center bg-gradient-to-br from-emerald-400 to-cyan-600 text-5xl">🛍️</div>
+                    {% endif %}
+                    <div class="p-5">
+                        <h3 class="mt-2 text-lg font-bold">{{ produit.nom }}</h3>
+                        <p class="mt-4 text-xl font-black text-slate-900">{{ produit.prix }} BIF</p>
+                    </div>
+                </article>
+            {% empty %}
+                {% for produit in produits_demo %}
+                    <article role="button" tabindex="0" onclick="ouvrirDetailsDemo('{{ produit.nom|escapejs }}', '{{ produit.prix|escapejs }}', '{{ produit.description|escapejs }}', '{{ produit.boutique|escapejs }}')" class="cursor-pointer overflow-hidden rounded-2xl border border-emerald-200 bg-white shadow-sm transition hover:-translate-y-1 hover:border-emerald-400 hover:shadow-xl">
+                        <img src="{{ media_url }}produits_photos/{{ produit.photo }}" alt="{{ produit.nom }}" class="h-48 w-full object-cover">
+                        <div class="p-5">
+                            <h3 class="mt-2 text-lg font-bold">{{ produit.nom }}</h3>
+                            <p class="mt-4 text-xl font-black text-slate-900">{{ produit.prix }} BIF</p>
+                        </div>
+                    </article>
+                {% endfor %}
+            {% endfor %}
+        </div>
+    </main>
+
+    <div id="detailsModal" class="fixed inset-0 z-30 hidden items-center justify-center bg-slate-950/60 px-5 backdrop-blur-sm">
+        <div class="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl">
+            <div class="flex items-start justify-between gap-4">
+                <div><p class="text-sm font-semibold text-emerald-700">Détails du produit</p><h2 id="detailsTitle" class="mt-1 text-2xl font-black"></h2></div>
+                <button type="button" onclick="fermerDetails()" class="text-2xl text-slate-400 hover:text-slate-900" aria-label="Fermer">&times;</button>
+            </div>
+            <p id="detailsPrice" class="mt-5 text-2xl font-black text-slate-900"></p>
+            <dl class="mt-5 space-y-3 text-sm"><div><dt class="font-bold text-slate-500">Description</dt><dd id="detailsDescription" class="mt-1 text-slate-700"></dd></div><div><dt class="font-bold text-slate-500">Boutique</dt><dd id="detailsShop" class="mt-1 text-slate-700"></dd></div><div><dt class="font-bold text-slate-500">Localisation</dt><dd id="detailsLocation" class="mt-1 text-slate-700"></dd></div><div id="detailsPhoneRow"><dt class="font-bold text-slate-500">Contact</dt><dd id="detailsPhone" class="mt-1 text-slate-700"></dd></div></dl>
+            <button id="detailsContactButton" type="button" class="mt-6 w-full rounded-xl bg-emerald-600 px-4 py-3 font-bold text-white transition hover:bg-emerald-700">Contacter le vendeur</button>
+        </div>
+    </div>
+
+    <div id="contactModal" class="fixed inset-0 z-20 hidden items-center justify-center bg-slate-950/60 px-5 backdrop-blur-sm">
+        <div class="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl">
+            <div class="flex items-start justify-between gap-4">
+                <div><p class="text-sm font-semibold text-emerald-700">Messagerie interne</p><h2 id="contactTitle" class="mt-1 text-2xl font-black">Contacter le vendeur</h2></div>
+                <button type="button" onclick="fermerContact()" class="text-2xl text-slate-400 hover:text-slate-900">&times;</button>
+            </div>
+            <p id="demoNotice" class="mt-4 hidden rounded-lg bg-amber-50 p-3 text-sm text-amber-800">Ce produit est une démonstration. Les messages seront disponibles dès qu’un commerçant aura publié un produit.</p>
+            <form id="contactForm" method="post" action="{% url 'envoyer_message' %}" class="mt-5 space-y-4">
+                {% csrf_token %}
+                <input type="hidden" id="produitId" name="produit_id">
+                <input name="nom_client" required placeholder="Votre nom" class="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-emerald-500">
+                <input name="contact_client" required placeholder="Téléphone ou e-mail" class="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-emerald-500">
+                <textarea name="contenu" required rows="4" placeholder="Votre message au commerçant..." class="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-emerald-500"></textarea>
+                <button id="sendMessageButton" class="w-full rounded-xl bg-emerald-600 px-4 py-3 font-bold text-white transition hover:bg-emerald-700">Envoyer le message</button>
+            </form>
+        </div>
+    </div>
+    {% include 'partials/footer.html' %}
+    <script>
+        const contactModal = document.getElementById('contactModal');
+        const contactForm = document.getElementById('contactForm');
+        const detailsModal = document.getElementById('detailsModal');
+        let selectedProductId = null;
+        function ouvrirDetails(id, nom, prix, description, boutique, localisation, telephone, telephoneVisible) {
+            selectedProductId = id;
+            document.getElementById('detailsTitle').textContent = nom;
+            document.getElementById('detailsPrice').textContent = prix + ' BIF';
+            document.getElementById('detailsDescription').textContent = description;
+            document.getElementById('detailsShop').textContent = boutique;
+            document.getElementById('detailsLocation').textContent = localisation;
+            document.getElementById('detailsPhone').textContent = telephoneVisible === 'true' ? telephone : 'Numéro non affiché';
+            document.getElementById('detailsPhoneRow').classList.toggle('hidden', telephoneVisible !== 'true');
+            document.getElementById('detailsContactButton').classList.remove('hidden');
+            detailsModal.classList.remove('hidden');
+            detailsModal.classList.add('flex');
+        }
+        function ouvrirDetailsDepuisCarte(carte) {
+            ouvrirDetails(
+                carte.dataset.productId,
+                carte.dataset.productName,
+                carte.dataset.productPrice,
+                carte.dataset.productDescription,
+                carte.dataset.productShop,
+                carte.dataset.productLocation,
+                carte.dataset.productPhone,
+                carte.dataset.phoneVisible
+            );
+        }
+        function ouvrirDetailsDemo(nom, prix, description, boutique) {
+            ouvrirDetails('', nom, prix, description, boutique, 'Burundi', '', 'false');
+            document.getElementById('detailsContactButton').classList.add('hidden');
+        }
+        document.getElementById('detailsContactButton').addEventListener('click', function () {
+            fermerDetails();
+            ouvrirContact(selectedProductId, document.getElementById('detailsTitle').textContent);
+        });
+        function fermerDetails() {
+            detailsModal.classList.add('hidden');
+            detailsModal.classList.remove('flex');
+        }
+        function ouvrirContact(id, nom) {
+            document.getElementById('contactTitle').textContent = 'Contacter : ' + nom;
+            document.getElementById('produitId').value = id;
+            document.getElementById('demoNotice').classList.add('hidden');
+            contactForm.classList.remove('hidden');
+            contactModal.classList.remove('hidden');
+            contactModal.classList.add('flex');
+        }
+        function ouvrirContactDemo(nom) {
+            document.getElementById('contactTitle').textContent = 'Contacter : ' + nom;
+            document.getElementById('demoNotice').classList.remove('hidden');
+            contactForm.classList.add('hidden');
+            contactModal.classList.remove('hidden');
+            contactModal.classList.add('flex');
+        }
+        function fermerContact() {
+            contactModal.classList.add('hidden');
+            contactModal.classList.remove('flex');
+        }
+    </script>
+</body>
+</html>

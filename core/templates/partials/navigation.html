@@ -1,0 +1,140 @@
+<style>
+    .site-navigation__desktop {
+        display: flex;
+    }
+
+    .site-navigation__menu-button,
+    .site-navigation__mobile-panel {
+        display: none;
+    }
+
+    @media (max-width: 767px) {
+        .site-navigation__desktop {
+            display: none;
+        }
+
+        .site-navigation__menu-button {
+            display: inline-flex;
+            width: 44px;
+            height: 44px;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(167, 243, 208, 0.35);
+            border-radius: 0.75rem;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .site-navigation__mobile-panel.is-open {
+            display: flex;
+        }
+    }
+
+    @media (min-width: 768px) and (max-width: 1023px) {
+        .site-navigation__container {
+            padding-left: 1.5rem;
+            padding-right: 1.5rem;
+        }
+
+        .site-navigation__desktop a {
+            padding-left: 0.6rem;
+            padding-right: 0.6rem;
+        }
+    }
+
+    @media (min-width: 1280px) {
+        .site-navigation__container {
+            padding-top: 1.1rem;
+            padding-bottom: 1.1rem;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .site-navigation__mobile-panel {
+            transition: none !important;
+        }
+    }
+</style>
+
+<header class="sticky top-0 z-20 border-b border-emerald-900/20 bg-emerald-950/95 text-white shadow-lg backdrop-blur-md">
+    <div class="site-navigation__container mx-auto flex max-w-7xl items-center justify-between gap-3 px-5 py-4 lg:px-8">
+        <a href="{% url 'accueil' %}" class="flex items-center gap-3" aria-label="Retour à l'accueil">
+            <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-400 text-xl">🛍️<img src="" alt=""></span>
+            <span>
+                <span class="block text-lg font-black tracking-wide">ISOKO YANJE</span>
+                <span class="hidden text-xs text-emerald-200 sm:block">Le marché local du Burundi</span>
+            </span>
+        </a>
+        <nav class="site-navigation__desktop items-center gap-1 text-xs font-semibold sm:gap-2 sm:text-sm" aria-label="Navigation principale">
+            <a href="{% url 'accueil' %}" class="rounded-lg px-2 py-2 text-emerald-100 transition hover:bg-white/15 hover:text-white sm:px-3">Accueil</a>
+            <a href="{% url 'site_produits' %}" class="rounded-lg px-2 py-2 text-emerald-100 transition hover:bg-white/15 hover:text-white sm:px-3">Produits</a>
+            <a href="{% url 'a_propos' %}" class="rounded-lg px-2 py-2 text-emerald-100 transition hover:bg-white/15 hover:text-white sm:px-3">À propos</a>
+            <a href="{% url 'contact_admin' %}" class="rounded-lg px-2 py-2 text-emerald-100 transition hover:bg-white/15 hover:text-white sm:px-3">Contact</a>
+            {% if request.user.is_authenticated and request.user.is_commercant %}
+                <a href="{% url 'tableau_commercant' %}" class="rounded-lg bg-sky-500 px-2 py-2 text-white transition hover:bg-sky-400 sm:px-3">Mon espace</a>
+            {% else %}
+                <a href="{% url 'connexion_commercant' %}" class="rounded-lg bg-sky-500 px-2 py-2 text-white transition hover:bg-sky-400 sm:px-3">Vendre</a>
+            {% endif %}
+        </nav>
+
+        <button type="button" class="site-navigation__menu-button" id="mobileMenuButton" aria-label="Ouvrir le menu" aria-controls="mobileMenuPanel" aria-expanded="false">
+            <span aria-hidden="true" class="text-2xl leading-none">☰</span>
+        </button>
+    </div>
+
+    <div id="mobileMenuPanel" class="site-navigation__mobile-panel fixed inset-0 z-30 items-start justify-end bg-slate-950/60 px-4 py-4 backdrop-blur-sm" aria-hidden="true">
+        <div class="w-full max-w-sm rounded-2xl bg-emerald-950 p-5 text-white shadow-2xl ring-1 ring-white/15">
+            <div class="flex items-center justify-between border-b border-white/15 pb-4">
+                <p class="font-bold">Menu principal</p>
+                <button type="button" id="mobileMenuClose" class="flex h-10 w-10 items-center justify-center rounded-lg bg-white/10 text-2xl hover:bg-white/20" aria-label="Fermer le menu">&times;</button>
+            </div>
+            <nav class="flex flex-col gap-2 pt-4 text-base font-semibold" aria-label="Menu mobile">
+                <a href="{% url 'accueil' %}" class="rounded-xl px-4 py-3 hover:bg-white/10">Accueil</a>
+                <a href="{% url 'site_produits' %}" class="rounded-xl px-4 py-3 hover:bg-white/10">Produits</a>
+                <a href="{% url 'a_propos' %}" class="rounded-xl px-4 py-3 hover:bg-white/10">À propos de nous</a>
+                <a href="{% url 'contact_admin' %}" class="rounded-xl px-4 py-3 hover:bg-white/10">Contactez-nous</a>
+                {% if request.user.is_authenticated and request.user.is_commercant %}
+                    <a href="{% url 'tableau_commercant' %}" class="rounded-xl bg-sky-500 px-4 py-3 text-center hover:bg-sky-400">Mon espace commerçant</a>
+                {% else %}
+                    <a href="{% url 'connexion_commercant' %}" class="rounded-xl bg-sky-500 px-4 py-3 text-center hover:bg-sky-400">Vendre sur Isoko Yanje</a>
+                {% endif %}
+            </nav>
+        </div>
+    </div>
+</header>
+
+<script>
+    (() => {
+        const menuButton = document.getElementById('mobileMenuButton');
+        const menuPanel = document.getElementById('mobileMenuPanel');
+        const closeButton = document.getElementById('mobileMenuClose');
+
+        if (!menuButton || !menuPanel || !closeButton) {
+            return;
+        }
+
+        const setMenuState = (isOpen) => {
+            menuPanel.classList.toggle('is-open', isOpen);
+            menuPanel.setAttribute('aria-hidden', String(!isOpen));
+            menuButton.setAttribute('aria-expanded', String(isOpen));
+            menuButton.setAttribute('aria-label', isOpen ? 'Fermer le menu' : 'Ouvrir le menu');
+            document.body.classList.toggle('overflow-hidden', isOpen);
+        };
+
+        menuButton.addEventListener('click', () => setMenuState(true));
+        closeButton.addEventListener('click', () => setMenuState(false));
+        menuPanel.addEventListener('click', (event) => {
+            if (event.target === menuPanel) {
+                setMenuState(false);
+            }
+        });
+        menuPanel.querySelectorAll('a').forEach((link) => {
+            link.addEventListener('click', () => setMenuState(false));
+        });
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                setMenuState(false);
+            }
+        });
+    })();
+</script>

@@ -1,0 +1,29 @@
+<footer class="mt-auto bg-emerald-950 text-emerald-100">
+    <div class="mx-auto grid max-w-7xl gap-8 px-5 py-10 sm:grid-cols-2 lg:grid-cols-4 lg:px-8">
+        <div>
+            <p class="text-lg font-black text-white">ISOKO YANJE</p>
+            <p class="mt-2 max-w-xs text-sm leading-6 text-emerald-200">Une place de marché pensée pour mettre en valeur les talents et les produits burundais.</p>
+        </div>
+        <div>
+            <p class="font-bold text-white">Découvrir</p>
+            <div class="mt-3 flex flex-col gap-2 text-sm">
+                <a href="{% url 'site_produits' %}" class="transition hover:text-amber-300">Voir les produits</a>
+                <a href="{% url 'a_propos' %}" class="transition hover:text-amber-300">À propos de nous</a>
+            </div>
+        </div>
+        <div>
+            <p class="font-bold text-white">Besoin d'aide ?</p>
+            <div class="mt-3 flex flex-col gap-2 text-sm">
+                <a href="{% url 'contact_admin' %}" class="transition hover:text-amber-300">Contacter les administrateurs</a>
+                <a href="{% url 'connexion_commercant' %}" class="transition hover:text-amber-300">Devenir commerçant</a>
+            </div>
+        </div>
+        <div>
+            <p class="font-bold text-white">Notre promesse</p>
+            <p class="mt-3 text-sm leading-6 text-emerald-200">Des échanges simples, directs et locaux, partout au Burundi.</p>
+        </div>
+    </div>
+    <div class="border-t border-white/10 px-5 py-4 text-center text-xs text-emerald-300">
+        <p>&copy; 2026 Isoko Yanje - Tous droits réservés.</p>
+    </div>
+</footer>
